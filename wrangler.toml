@@ -1,14 +1,20 @@
 name = "cloudflare-worker-typescript"
-type = "javascript"
-route = ''
-zone_id = ''
+type = "webpack"
 account_id = '0d2c0a5b601d717f2f9cd2da4cdcc3a1'
-compatibility_flags = []
 workers_dev = true
-compatibility_date = "2024-11-30"
+compatibility_date = "2024-12-01"
+main = "./src/index.ts"
+compatibility_flags = [ "nodejs_compat" ]
+
+
+[env.production]
+kv_namespaces = [
+  { binding = "REDIS_CONFIG", id = "bbdcd21aee89499698ef06430b62c1ed" }
+]
 
 [build]
 command = "npm run build"
+ 
 
 [build.upload]
 format = "service-worker"

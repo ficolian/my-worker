@@ -8,7 +8,7 @@ const SECRET_KEY = 'your-secret-key';
 
 export const generateToken = (email: string) => {
     const payload = ({ email });
-    const options = { expiresIn: '1h' }; // Expired In 1 hour
+    const options = { expiresIn: '1h' };
 
     return jwt.sign(payload, SECRET_KEY, options);
 };
@@ -17,10 +17,9 @@ export const generateToken = (email: string) => {
 
 export const verifyToken = async (request: Request): Promise<boolean> => {
     try {
-        // Extract the token from the Authorization header
         const authHeader = request.headers.get('Authorization');
         if (!authHeader) {
-            return false; // Token is missing
+            return false;
         }
 
         const token = authHeader.split(' ')[1];
@@ -44,7 +43,6 @@ export const verifyToken = async (request: Request): Promise<boolean> => {
             return false; // User doesn't exist or is invalid
         }
 
-        // Check if the token is blacklisted
         const isBlacklisted = await isTokenBlacklisted(token);
         if (isBlacklisted) {
             return false; // Token has been blacklisted
@@ -59,14 +57,12 @@ export const verifyToken = async (request: Request): Promise<boolean> => {
 export const blacklistToken = async (jwtToken: string): Promise<void> => {
     const blacklistKey = 'jwtBlacklist';
     
-    // Add the token to the blacklist set
     await redis.sadd(blacklistKey, jwtToken);
 };
 
 export const isTokenBlacklisted = async (jwtToken: string): Promise<Number> => {
     const blacklistKey = 'jwtBlacklist';
     
-    // Check if the token exists in the blacklist set
     const isBlacklisted = await redis.sismember(blacklistKey, jwtToken);
 
     return isBlacklisted;

@@ -5,3 +5,4 @@ package.json
 *.toml
 wrangler.toml
 dist/*
+.wrangler/*

@@ -133,7 +133,6 @@ export const updateProduct = async (req: Request): Promise<Response> => {
 export const getProductsById = async (request: Request, id: string): Promise<Response> => {
     try {
         const product = await getProductById(id);
-        console.log(product)
         
         if (!product) {
             return new Response(JSON.stringify({ message: 'Product data not found', status: 404 }), {

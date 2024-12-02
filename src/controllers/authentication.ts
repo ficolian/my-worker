@@ -8,6 +8,7 @@ interface registerRequest {
     password: string;
     username: string;
 }
+
 export const login = async (request: Request): Promise<Response> => {
     try {
 
@@ -39,8 +40,12 @@ export const login = async (request: Request): Promise<Response> => {
             .catch((error) => {
                 console.error('Error updating user:', error);
             });
-
-        return new Response(JSON.stringify({ message: 'Login is successfull', status: 200, data: user }), {
+        
+        const userResponse = {
+            email : user.email,
+            token: user.authentication.jwtToken
+        };
+        return new Response(JSON.stringify({ message: 'Login is successfull', status: 200, data: userResponse }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });

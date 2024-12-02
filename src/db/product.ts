@@ -1,4 +1,4 @@
-import { redis } from "../middlewares/redisUtils";
+import { createRedisClient } from "../middlewares/redisUtils";
 import { toJSON, fromJSON } from "../middlewares/jsonUtils";
 
 // Define the Product schema class
@@ -44,14 +44,15 @@ export class ProductSchema {
     }
 }
 
-export const setProduct = async (id: string, product: ProductSchema): Promise<void> => {
+export const setProduct = async (id: string, product: ProductSchema, env:Record<string,string>): Promise<void> => {
+    const redis = await createRedisClient(env);
     const key = `product:${id}`;
     await redis.set(key, toJSON(product.toObject()));  // Store product as JSON string
 };
 
-export const getProducts = async (): Promise<ProductSchema[]> => {
+export const getProducts = async (env:Record<string,string>): Promise<ProductSchema[]> => {
+    const redis = await createRedisClient(env);
     const productIds = await redis.smembers('product');
-    console.log(productIds)
     const products: ProductSchema[] = [];
   
     for (const productId of productIds) {
@@ -65,7 +66,8 @@ export const getProducts = async (): Promise<ProductSchema[]> => {
     return products; // Return the list of products
 };
 
-export const createProduct = async (product: ProductSchema): Promise<void> => {
+export const createProduct = async (product: ProductSchema, env:Record<string,string>): Promise<void> => {
+    const redis = await createRedisClient(env);
     const productId = await redis.incr('productIdCounter');
     const key = `product:${productId}`;
     product.productId = productId;
@@ -73,8 +75,10 @@ export const createProduct = async (product: ProductSchema): Promise<void> => {
     await redis.set(key, JSON.stringify(product.toObject())); // Store product as JSON
 };
 
-export const getProductById = async (id: string): Promise<ProductSchema | null> => {
-    try{
+export const getProductById = async (id: string, env:Record<string,string>): Promise<ProductSchema | null> => {
+    try 
+    {
+        const redis = await createRedisClient(env);
         const key = `product:${id}`;    
         const data = await redis.get(key);
         return ProductSchema.fromObject(data);
@@ -84,7 +88,8 @@ export const getProductById = async (id: string): Promise<ProductSchema | null> 
     }
 }
 
-export const getProductByName = async (productName: string): Promise<ProductSchema | null> => {
+export const getProductByName = async (productName: string, env:Record<string,string>): Promise<ProductSchema | null> => {
+    const redis = await createRedisClient(env);
     const keys = await redis.keys(`product:*`);
     for (const key of keys) {
         const productData = await redis.get(key);
@@ -102,16 +107,18 @@ export const getProductByName = async (productName: string): Promise<ProductSche
     return null;
 };
 
-export const deleteProductById = async (id: string): Promise<void> => {
+export const deleteProductById = async (id: string, env:Record<string,string>): Promise<void> => {
+    const redis = await createRedisClient(env);
     const key = `product:${id}`;
     await redis.del(key);
 };
 
-export const updateProductById = async (id: string, updatedValues: Record<string, any>): Promise<void> => {
-    const product = await getProductById(id);
+export const updateProductById = async (id: string, updatedValues: Record<string, any>, env:Record<string,string>): Promise<void> => {
+    const redis = await createRedisClient(env);
+    const product = await getProductById(id, env);
     if (product) {
         const updatedProduct = { ...product.toObject(), ...updatedValues }; 
-        await setProduct(id, ProductSchema.fromObject(updatedProduct));
+        await setProduct(id, ProductSchema.fromObject(updatedProduct), env);
     }
 };
 

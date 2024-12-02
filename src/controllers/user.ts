@@ -12,11 +12,11 @@ import { deleteUserById, getUserById } from '../db/user';
 //     }
 // }
 
-export const deleteUser = async (req: express.Request, res: express.Response): Promise<any> => {
+export const deleteUser = async (req: express.Request, res: express.Response, env: Record<string, string>): Promise<any> => {
     try{
         const {id} = req.params;
 
-        const deletedUser = await deleteUserById(id);
+        const deletedUser = await deleteUserById(id, env);
 
         return res.json(deletedUser);
     } catch (error){
@@ -25,11 +25,11 @@ export const deleteUser = async (req: express.Request, res: express.Response): P
     }
 }
 
-export const getUsersById = async (req: express.Request, res: express.Response): Promise<any> => {
+export const getUsersById = async (req: express.Request, res: express.Response, env:Record<string,string>): Promise<any> => {
     try{
         const { id } = req.params;
 
-        const user = await getUserById(id);
+        const user = await getUserById(id, env);
 
         return res.status(200).json(user);
     } catch(error) {

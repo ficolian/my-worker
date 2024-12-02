@@ -10,9 +10,9 @@ interface productRequest {
     category: string;
 }
 
-export const getAllProducts = async (request: Request): Promise<Response> => {
+export const getAllProducts = async (request: Request, env:Record<string,string>): Promise<Response> => {
     try {
-        const products = await getProducts();
+        const products = await getProducts(env);
         const total = products.length;
 
         const url = new URL(request.url);
@@ -48,7 +48,7 @@ export const getAllProducts = async (request: Request): Promise<Response> => {
     }
 };
 
-export const deleteProduct = async (request: Request): Promise<Response> => {
+export const deleteProduct = async (request: Request, env:Record<string,string>): Promise<Response> => {
     try {
         const { id, productName, quantity, category }: productRequest = await request.json();
 
@@ -56,19 +56,19 @@ export const deleteProduct = async (request: Request): Promise<Response> => {
             return BadRequest('id is required')
         }
 
-        const product = await getProductById(id);
+        const product = await getProductById(id, env);
         if (product == null) {
             return DeleteFail("Product")
         }
 
-        await deleteProductById(id);
+        await deleteProductById(id, env);
 
         return DeleteSuccess("Product")
     } catch (error) {
         return BadRequest("Bad Request");
     }
 }
-export const updateProduct = async (req: Request): Promise<Response> => {
+export const updateProduct = async (req: Request, env:Record<string,string>): Promise<Response> => {
     try {        
         const { id, productName, quantity, category }: productRequest = await req.json();
        
@@ -80,7 +80,7 @@ export const updateProduct = async (req: Request): Promise<Response> => {
             return BadRequest('The productName is required')
         }
 
-        const product = await getProductById(id);
+        const product = await getProductById(id, env);
 
         if (product == null) {
             return Notfound("Product")
@@ -93,7 +93,7 @@ export const updateProduct = async (req: Request): Promise<Response> => {
             modifiedAt: new Date()
         };
         
-        await updateProductById(id, updatedValues)
+        await updateProductById(id, updatedValues, env)
             .then(() => {
                 console.log('Product updated successfully');
             })
@@ -106,9 +106,9 @@ export const updateProduct = async (req: Request): Promise<Response> => {
         return new Response('Bad Request: Missing required fields', { status: 400 });
     }
 }
-export const getProductsById = async (request: Request, id: string): Promise<Response> => {
+export const getProductsById = async (request: Request, id: string, env:Record<string,string>): Promise<Response> => {
     try {
-        const product = await getProductById(id);
+        const product = await getProductById(id, env);
         
         if (!product) {
             return new Response(JSON.stringify({ message: 'Product data not found', status: 404 }), {
@@ -126,7 +126,7 @@ export const getProductsById = async (request: Request, id: string): Promise<Res
         return new Response('Bad Request', { status: 400 });
     }
 };
-export const createProducts = async (req: Request): Promise<Response> => {
+export const createProducts = async (req: Request, env:Record<string,string>): Promise<Response> => {
     try {
         const {id, productName, quantity, category } : productRequest = await req.json();
         
@@ -139,7 +139,7 @@ export const createProducts = async (req: Request): Promise<Response> => {
         }
 
         const product = new ProductSchema(null, productName, quantity, category, true, new Date());
-        await createProduct(product);
+        await createProduct(product, env);
     
         return InsertSuccess('Product')
     } catch (error) {

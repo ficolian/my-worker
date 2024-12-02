@@ -1,21 +1,16 @@
 import jwt, { decode, JwtPayload } from 'jsonwebtoken';
-import express from 'express';
-import { redis } from './redisUtils';
+import { createRedisClient } from './redisUtils';
 import { getUserByEmail } from '../db/user';
 
-// Load .env variables into process.env
-const SECRET_KEY = 'your-secret-key';
-
-export const generateToken = (email: string) => {
+export const generateToken = (email: string, env:Record<string,string>) => {
     const payload = ({ email });
     const options = { expiresIn: '1h' };
 
-    return jwt.sign(payload, SECRET_KEY, options);
+    return jwt.sign(payload, env.SECRET_KEY, options);
 };
 
-// Function to verify a JWT token
-
-export const verifyToken = async (request: Request): Promise<boolean> => {
+export const verifyToken = async (request: Request, env:Record<string,string>): Promise<boolean> => {
+    // const SECRET_KEYS : string | = process.env.PASSWORD_KEY
     try {
         const authHeader = request.headers.get('Authorization');
         if (!authHeader) {
@@ -27,8 +22,7 @@ export const verifyToken = async (request: Request): Promise<boolean> => {
             return false; // Token is invalid if it's empty
         }
 
-        // Verify the token with the secret key
-        const decoded = jwt.verify(token, SECRET_KEY) as JwtPayload;
+        const decoded = jwt.verify(token, env.SECRET_KEY) as JwtPayload;
         const exp = decoded.exp ? decoded.exp : 1;
         const expirationTimestamp = exp * 1000;
         const currentTimestamp = Date.now();
@@ -37,13 +31,12 @@ export const verifyToken = async (request: Request): Promise<boolean> => {
             return false; // Token has expired
         }
 
-        // Get the user associated with the token
-        const existingUser = await getUserByEmail(decoded['email']);
+        const existingUser = await getUserByEmail(decoded['email'], env);
         if (!existingUser) {
             return false; // User doesn't exist or is invalid
         }
 
-        const isBlacklisted = await isTokenBlacklisted(token);
+        const isBlacklisted = await isTokenBlacklisted(token, env);
         if (isBlacklisted) {
             return false; // Token has been blacklisted
         }
@@ -54,13 +47,15 @@ export const verifyToken = async (request: Request): Promise<boolean> => {
         return false; // Token is invalid
     }
 };
-export const blacklistToken = async (jwtToken: string): Promise<void> => {
+export const blacklistToken = async (jwtToken: string, env: Record<string,string>): Promise<void> => {
+    const redis = await createRedisClient(env)
     const blacklistKey = 'jwtBlacklist';
     
     await redis.sadd(blacklistKey, jwtToken);
 };
 
-export const isTokenBlacklisted = async (jwtToken: string): Promise<Number> => {
+export const isTokenBlacklisted = async (jwtToken: string, env: Record<string,string>): Promise<Number> => {
+    const redis = await createRedisClient(env)
     const blacklistKey = 'jwtBlacklist';
     
     const isBlacklisted = await redis.sismember(blacklistKey, jwtToken);

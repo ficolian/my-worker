@@ -1,4 +1,4 @@
-import {redis} from "../middlewares/redisUtils";
+import {createRedisClient} from "../middlewares/redisUtils";
 import { toJSON, fromJSON } from "../middlewares/jsonUtils"; // Assuming these methods exist for serialization
 
 export class UserModel{
@@ -32,13 +32,15 @@ export class UserModel{
     }
 }
 
-export const setUser = async (id: string, user: UserModel): Promise<void> => {
+export const setUser = async (id: string, user: UserModel,  env:Record<string,string>): Promise<void> => {
+    const redis = await createRedisClient(env);
     const key = `user:${id}`;
     await redis.set(key, toJSON(user.toObject())); 
 };
 
-export const getUserByEmail = async (email: string): Promise<UserModel | null> => {
+export const getUserByEmail = async (email: string,  env:Record<string,string>): Promise<UserModel | null> => {
     try {
+        const redis = await createRedisClient(env);
         const keys = await redis.keys(`user:*`);
 
         for (const key of keys) {
@@ -58,12 +60,16 @@ export const getUserByEmail = async (email: string): Promise<UserModel | null> =
     }
 };
 
-export const deleteUserById = async (id: string): Promise<void> => {
+export const deleteUserById = async (id: string, env:Record<string,string>): Promise<void> => {
     const key = `user:${id}`;
+    const redis = await createRedisClient(env);
+
     await redis.del(key);
 };
 
-export const getUserByJwtToken = async (jwtToken: string): Promise<UserModel | null> => {
+export const getUserByJwtToken = async (jwtToken: string, env:Record<string,string>): Promise<UserModel | null> => {
+    const redis = await createRedisClient(env);
+
     const keys = await redis.keys(`user:*`);
     for (const key of keys) {
         const userData = await redis.get(key);
@@ -82,9 +88,11 @@ export const getUserByJwtToken = async (jwtToken: string): Promise<UserModel | n
     return null;
 };
 
-export const getUserById = async (id: string): Promise<UserModel | null> => {
+export const getUserById = async (id: string, env: Record<string,string>): Promise<UserModel | null> => {
     const key = `user:${id}`;
-    const userData = await redis.get(key);
+    const redis = await createRedisClient(env);
+
+    const userData = redis.get(key);
   
     if (!userData || typeof userData !== 'string') {
       return null;
@@ -102,7 +110,8 @@ export const getUserById = async (id: string): Promise<UserModel | null> => {
     return parsedUser;
 };
   
-export const createUser = async (user: UserModel): Promise<void> => {
+export const createUser = async (user: UserModel, env:Record<string,string>): Promise<void> => {
+    const redis = await createRedisClient(env);
     const userId = await redis.incr('userIdCounter');
     const key = `user:${userId}`;
     user.userId = userId;
@@ -110,10 +119,10 @@ export const createUser = async (user: UserModel): Promise<void> => {
     await redis.set(key, JSON.stringify(user.toObject())); 
 };
 
-export const updateUserById = async (id: string, updatedValues: Record<string, any>): Promise<void> => {
-    const user = await getUserById(id);
+export const updateUserById = async (id: string, updatedValues: Record<string, any>, env:Record<string,string>): Promise<void> => {
+    const user = await getUserById(id, env);
     if (user) {
         const updatedUser = { ...user.toObject(), ...updatedValues }; 
-        await setUser(id, UserModel.fromObject(updatedUser));
+        await setUser(id, UserModel.fromObject(updatedUser), env);
     }
 };

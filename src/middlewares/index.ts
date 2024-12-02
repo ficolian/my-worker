@@ -4,7 +4,7 @@ import {get, identity, merge} from 'lodash';
 
 import { getUserByJwtToken } from '../db/user';
 
-export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<any> => {
+export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction,  env:Record<string,string>): Promise<any> => {
     try {
         const sessionToken = req.cookies['TRAVLR-AUTH'];
 
@@ -12,7 +12,7 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
             return res.status(403).json({message:'user is unauthorize'});
         }
 
-        const existingUser = await getUserByJwtToken(sessionToken);
+        const existingUser = await getUserByJwtToken(sessionToken, env);
 
         if (!existingUser) {
             return res.status(403).json({ message:'user is unauthorize' });

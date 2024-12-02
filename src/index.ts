@@ -1,10 +1,15 @@
+import { entries } from 'lodash';
 import authentication from './router/authentication';
 import products from './router/products';
 
+// type EnvType = {
+//   API_VERSION: string;
+// };
 
 export default {
   async fetch(request: Request): Promise<Response> {
     
+    // console.log(env.API_VERSION)
     if (request.url.includes('/login')) {
       const response = await authentication(request);
       return response;

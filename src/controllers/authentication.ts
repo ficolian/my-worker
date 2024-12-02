@@ -2,6 +2,7 @@ import express from 'express';
 import { getUserByEmail, createUser, getUserById, UserModel, updateUserById } from "../db/user";
 import { authentication, random } from "../helpers";
 import { generateToken, blacklistToken } from '../middlewares/jwtUtils';
+import { InsertSuccess, Success } from '../common/appfunc';
 
 interface registerRequest {
     email: string;
@@ -45,10 +46,8 @@ export const login = async (request: Request): Promise<Response> => {
             email : user.email,
             token: user.authentication.jwtToken
         };
-        return new Response(JSON.stringify({ message: 'Login is successfull', status: 200, data: userResponse }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        
+        return Success('Login is successfull', userResponse)
     } catch (error) {
         console.log(error);
         return new Response('Internal Server Error', { status: 500 });
@@ -85,11 +84,7 @@ export const register = async (request: Request): Promise<Response> => {
 
         await createUser(user);
 
-        return new Response(JSON.stringify(user), { 
-            status: 200, 
-            headers: { 'Content-Type': 'application/json' }
-        });
-
+        return InsertSuccess("User")
     } catch (error) {
         console.error('Error during registration:', error);
         return new Response('Internal Server Error', { status: 500 });

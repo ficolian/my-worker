@@ -1,3 +1,5 @@
+import { fail } from 'assert';
+import { BadRequest, DeleteFail, InsertFail, InsertSuccess, Fail, DeleteSuccess, Notfound, UpdateFail, UpdateSuccess } from '../common/appfunc';
 import { ProductSchema, deleteProductById, getProductById, getProducts, createProduct, paginateArray, updateProductById } from '../db/product';
 
 
@@ -42,10 +44,7 @@ export const getAllProducts = async (request: Request): Promise<Response> => {
         );
     } catch (error) {
         console.log(error);
-        return new Response(
-            JSON.stringify({ message: 'Internal Server Error', status: 400 }),
-            { status: 400, headers: { 'Content-Type': 'application/json' } }
-        );
+        return fail('Internal Server Error')
     }
 };
 
@@ -54,28 +53,19 @@ export const deleteProduct = async (request: Request): Promise<Response> => {
         const { id, productName, quantity, category }: productRequest = await request.json();
 
         if (!id){
-            return new Response(JSON.stringify({ message: 'id is required', status: 400 }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            return BadRequest('id is required')
         }
 
         const product = await getProductById(id);
         if (product == null) {
-            return new Response(JSON.stringify({ message: 'Product data not found', status: 400 }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            return DeleteFail("Product")
         }
 
-        const deletedProduct = await deleteProductById(id);
+        await deleteProductById(id);
 
-        return new Response(JSON.stringify({ message: 'Product successfully deleted', status: 200 }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return DeleteSuccess("Product")
     } catch (error) {
-        return new Response('Bad Request: Missing required fields', { status: 400 });
+        return BadRequest("Bad Request");
     }
 }
 export const updateProduct = async (req: Request): Promise<Response> => {
@@ -83,26 +73,17 @@ export const updateProduct = async (req: Request): Promise<Response> => {
         const { id, productName, quantity, category }: productRequest = await req.json();
        
         if (!id) {
-            return new Response(JSON.stringify({ message: 'The id is required', status: 400 }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            return BadRequest('The id is required')
         }
 
         if (!quantity) {
-            return new Response(JSON.stringify({ message: 'The productName is required', status: 400 }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            return BadRequest('The productName is required')
         }
 
         const product = await getProductById(id);
 
         if (product == null) {
-            return new Response(JSON.stringify({ message: 'Product data not found', status: 400 }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            return Notfound("Product")
         }
 
         const updatedValues = {
@@ -117,16 +98,11 @@ export const updateProduct = async (req: Request): Promise<Response> => {
                 console.log('Product updated successfully');
             })
             .catch((error) => {
-                console.error('Error updating product:', error);
-                return new Response('Internal Server Error: Error updating product', { status: 500 });
+                return UpdateFail('Product')
             });
 
-        return new Response(JSON.stringify({ message: 'Product successfully updated', status: 200 }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return UpdateSuccess('Product')
     } catch (error) {
-        console.error(error);
         return new Response('Bad Request: Missing required fields', { status: 400 });
     }
 }
@@ -155,28 +131,19 @@ export const createProducts = async (req: Request): Promise<Response> => {
         const {id, productName, quantity, category } : productRequest = await req.json();
         
         if (!productName) {
-            return new Response(JSON.stringify({ message: 'The productName is required', status: 400 }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            return BadRequest('The productName is required')
         }
 
         if (!quantity) {
-            return new Response(JSON.stringify({ message: 'The quantity is required', status: 400 }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            return BadRequest('The quantity is required')
         }
 
         const product = new ProductSchema(null, productName, quantity, category, true, new Date());
         await createProduct(product);
-        
-        return new Response(JSON.stringify({ message: 'Product successfully saved', status: 200 }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+    
+        return InsertSuccess('Product')
     } catch (error) {
         console.error(error);
-        return new Response(JSON.stringify({ message: 'Product failed to save', status: 500 }), { status: 500 });
+        return InsertFail('Product')
     }
 };

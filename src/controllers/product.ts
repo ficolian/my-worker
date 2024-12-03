@@ -52,7 +52,7 @@ export const deleteProduct = async (request: Request, env:Record<string,string>)
         const { id, productName, quantity, category }: productRequest = await request.json();
 
         if (!id){
-            return BadRequest('id is required')
+            return Fail('id is required')
         }
 
         const product = await getProductById(id, env);
@@ -72,11 +72,11 @@ export const updateProduct = async (req: Request, env:Record<string,string>): Pr
         const { id, productName, quantity, category }: productRequest = await req.json();
 
         if (!id) {
-            return BadRequest('The id is required')
+            return Fail('The id is required')
         }
 
         if (!quantity) {
-            return BadRequest('The productName is required')
+            return Fail('The productName is required')
         }
 
         const product = await getProductById(id, env);
@@ -130,11 +130,11 @@ export const createProducts = async (req: Request, env:Record<string,string>): P
         const {id, productName, quantity, category } : productRequest = await req.json();
         
         if (!productName) {
-            return BadRequest('The productName is required')
+            return Fail('The productName is required')
         }
 
         if (!quantity) {
-            return BadRequest('The quantity is required')
+            return Fail('The quantity is required')
         }
 
         const product = new ProductSchema(1, productName, quantity, category, true, new Date());

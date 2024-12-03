@@ -2,7 +2,7 @@ import express from 'express';
 import { getUserByEmail, createUser, getUserById, UserModel, updateUserById } from "../db/user";
 import { authentication, random } from "../helpers";
 import { generateToken, blacklistToken } from '../middlewares/jwtUtils';
-import { InsertSuccess, Success } from '../common/appfunc';
+import { BadRequest, Fail, InsertSuccess, Success } from '../common/appfunc';
 
 interface registerRequest {
     email: string;
@@ -15,19 +15,19 @@ export const login = async (request: Request, env:Record<string,string>): Promis
         const { email, password }: { email: string, password: string } = await request.json();
         console.log(email);
         if (!email || !password) {
-            return new Response('Bad Request', { status: 400 });
+            return BadRequest('Missing Parameter');
         }
 
         const user = await getUserByEmail(email, env);
 
         if (!user) {
-            return new Response('Invalid user', { status: 400 });
+            return Fail('Invalid user');
         }
 
         const expectedHash = authentication(user.authentication.salt, password);
 
         if (user.authentication.password !== expectedHash) {
-            return new Response('Invalid Password', { status: 403 });
+            return Fail('Invalid Password');
         }
 
         const token = generateToken(user.email, env);
@@ -43,7 +43,8 @@ export const login = async (request: Request, env:Record<string,string>): Promis
         
         const userResponse = {
             email : user.email,
-            token: user.authentication.jwtToken
+            token: user.authentication.jwtToken,
+            username: user.username
         };
         
         return Success('Login is successfull', userResponse)
@@ -59,13 +60,13 @@ export const register = async (request: Request, env:Record<string,string>): Pro
         const { email, password, username }: registerRequest = await request.json();
 
         if (!email || !password || !username) {
-            return new Response('Bad Request: Missing required fields', { status: 400 });
+            return Fail('Bad Request: Missing required fields');
         }
 
         const existingUser = await getUserByEmail(email, env);
 
         if (existingUser) {
-            return new Response('Bad Request: User already exists', { status: 400 });
+            return Fail('Bad Request: User already exists');
         }
 
         const salt = random();  // Ensure you have a proper implementation of 'random()'
@@ -95,12 +96,12 @@ export const logout = async (request: Request, env: Record<string,string>): Prom
         const { jwtToken }: { jwtToken: string } = await request.json();
 
         if (!jwtToken) {
-            return new Response('Bad Request: jwtToken is required', { status: 400 });
+            return Fail('Bad Request: jwtToken is required');
         }
 
         await blacklistToken(jwtToken, env);
 
-        return new Response('Logged out successfully', { status: 200 });
+        return Success('Logged out successfully',null);
     } catch (error) {
         console.error('Error logging out:', error);
 

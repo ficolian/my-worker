@@ -52,9 +52,9 @@ export const setProduct = async (id: string, product: ProductSchema, env:Record<
 
 export const getProducts = async (env:Record<string,string>): Promise<ProductSchema[]> => {
     const redis = await createRedisClient(env);
-    const productIds = await redis.smembers('product');
+    let productIds = await redis.smembers('product');
     const products: ProductSchema[] = [];
-  
+    productIds = productIds.sort()
     for (const productId of productIds) {
       const productData = await redis.get(`product:${productId}`); // Get product by its ID
       
@@ -62,8 +62,8 @@ export const getProducts = async (env:Record<string,string>): Promise<ProductSch
         products.push((ProductSchema.fromObject(productData)));
       }
     }
-    const sortedProducts = products.sort((a, b) => a.productId - a.productId);
-    return sortedProducts; // Return the list of products
+    // const sortedProducts = products.sort((a, b) => a.productId - b.productId);
+    return products; // Return the list of products
 };
 
 export const createProduct = async (product: ProductSchema, env:Record<string,string>): Promise<void> => {

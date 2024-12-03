@@ -10,7 +10,7 @@ export function Success(message: string, data: any): Response {
 
     return new Response(JSON.stringify({ 
         message: message, 
-        status: AppConst.HTTP_SUCCESS,
+        status: AppConst.REQUEST_SUCCESS,
         data: data
      }), 
      {
@@ -22,8 +22,8 @@ export function Success(message: string, data: any): Response {
 export function Fail(message: string): Response {
     message = message;
 
-    return new Response(JSON.stringify({ message: message, status: AppConst.HTTP_FAIL }), {
-        status: AppConst.HTTP_FAIL,
+    return new Response(JSON.stringify({ message: message, status: AppConst.REQUEST_FAIL }), {
+        status: AppConst.HTTP_SUCCESS,
         headers: corsHeaders,
     });
 }
@@ -41,8 +41,8 @@ export function InsertSuccess(message: string): Response {
 export function InsertFail(message: string): Response {
     message = `${message} fail to save`;
 
-    return new Response(JSON.stringify({ message: message, status: AppConst.HTTP_FAIL }), {
-        status: AppConst.HTTP_FAIL,
+    return new Response(JSON.stringify({ message: message, status: AppConst.REQUEST_FAIL }), {
+        status: AppConst.HTTP_SUCCESS,
         headers: corsHeaders,
     });
 }
@@ -50,7 +50,7 @@ export function InsertFail(message: string): Response {
 export function DeleteSuccess(message: string): Response {
     message = `${message} successfully delete`;
 
-    return new Response(JSON.stringify({ message: message, status: AppConst.HTTP_SUCCESS }), {
+    return new Response(JSON.stringify({ message: message, status: AppConst.REQUEST_SUCCESS }), {
         status: AppConst.HTTP_SUCCESS,
         headers: corsHeaders,
     });
@@ -59,8 +59,8 @@ export function DeleteSuccess(message: string): Response {
 export function DeleteFail(message: string): Response {
     message = `${message} fail to delete`;
 
-    return new Response(JSON.stringify({ message: message, status: AppConst.HTTP_FAIL }), {
-        status: AppConst.HTTP_FAIL,
+    return new Response(JSON.stringify({ message: message, status: AppConst.REQUEST_FAIL }), {
+        status: AppConst.HTTP_SUCCESS,
         headers: corsHeaders,
     });
 }
@@ -68,7 +68,7 @@ export function DeleteFail(message: string): Response {
 export function UpdateSuccess(message: string): Response {
     message = `${message} successfully update`;
 
-    return new Response(JSON.stringify({ message: message, status: AppConst.HTTP_SUCCESS }), {
+    return new Response(JSON.stringify({ message: message, status: AppConst.REQUEST_SUCCESS }), {
         status: AppConst.HTTP_SUCCESS,
         headers: corsHeaders,
     });
@@ -77,8 +77,8 @@ export function UpdateSuccess(message: string): Response {
 export function UpdateFail(message: string): Response {
     message = `${message} fail to update`;
 
-    return new Response(JSON.stringify({ message: message, status: AppConst.HTTP_FAIL }), {
-        status: AppConst.HTTP_FAIL,
+    return new Response(JSON.stringify({ message: message, status: AppConst.REQUEST_FAIL }), {
+        status: AppConst.HTTP_SUCCESS,
         headers: corsHeaders,
     });
 }
@@ -88,7 +88,7 @@ export function Found(message: string, data: any): Response {
 
     return new Response(JSON.stringify({ message: message, 
                         data: data,
-                        status: AppConst.HTTP_SUCCESS }), {
+                        status: AppConst.REQUEST_SUCCESS }), {
         status: AppConst.HTTP_SUCCESS,
         headers: corsHeaders,
     });
@@ -97,8 +97,8 @@ export function Found(message: string, data: any): Response {
 export function Notfound(message: string): Response {
     message = `Data ${message} not found`;
 
-    return new Response(JSON.stringify({ message: message, status: AppConst.HTTP_FAIL }), {
-        status: AppConst.HTTP_FAIL,
+    return new Response(JSON.stringify({ message: message, status: AppConst.REQUEST_FAIL }), {
+        status: AppConst.HTTP_SUCCESS,
         headers: corsHeaders,
     });
 }
@@ -107,7 +107,7 @@ export function Notfound(message: string): Response {
 export function BadRequest(message: string): Response {
     message = message;
 
-    return new Response(JSON.stringify({ message: message, status: AppConst.HTTP_BAD_REQUEST }), {
+    return new Response(JSON.stringify({ message: message, status: AppConst.REQUEST_FAIL }), {
         status: AppConst.HTTP_BAD_REQUEST,
         headers: corsHeaders,
     });

@@ -12,9 +12,8 @@ interface registerRequest {
 
 export const login = async (request: Request, env:Record<string,string>): Promise<Response> => {
     try {
-
         const { email, password }: { email: string, password: string } = await request.json();
-
+        console.log(email);
         if (!email || !password) {
             return new Response('Bad Request', { status: 400 });
         }

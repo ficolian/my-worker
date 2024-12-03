@@ -1,7 +1,6 @@
 import { fail } from 'assert';
-import { BadRequest, DeleteFail, InsertFail, InsertSuccess, Fail, DeleteSuccess, Notfound, UpdateFail, UpdateSuccess } from '../common/appfunc';
+import { corsHeaders, BadRequest, DeleteFail, InsertFail, InsertSuccess, Fail, DeleteSuccess, Notfound, UpdateFail, UpdateSuccess } from '../common/appfunc';
 import { ProductSchema, deleteProductById, getProductById, getProducts, createProduct, paginateArray, updateProductById } from '../db/product';
-
 
 interface productRequest {
     id: string | null;
@@ -25,7 +24,7 @@ export const getAllProducts = async (request: Request, env:Record<string,string>
         if (total === 0) {
             return new Response(
                 JSON.stringify({ message: 'Product data not found', status: 200 }),
-                { status: 200, headers: { 'Content-Type': 'application/json' } }
+                { status: 200, headers: corsHeaders }
             );
         }
 
@@ -40,7 +39,7 @@ export const getAllProducts = async (request: Request, env:Record<string,string>
                 pageSize: pageSizeValue,
                 data: paginatedData
             }),
-            { status: 200, headers: { 'Content-Type': 'application/json' } }
+            { status: 200, headers: corsHeaders }
         );
     } catch (error) {
         console.log(error);
@@ -71,7 +70,7 @@ export const deleteProduct = async (request: Request, env:Record<string,string>)
 export const updateProduct = async (req: Request, env:Record<string,string>): Promise<Response> => {
     try {        
         const { id, productName, quantity, category }: productRequest = await req.json();
-       
+
         if (!id) {
             return BadRequest('The id is required')
         }
@@ -113,13 +112,13 @@ export const getProductsById = async (request: Request, id: string, env:Record<s
         if (!product) {
             return new Response(JSON.stringify({ message: 'Product data not found', status: 404 }), {
                 status: 404,
-                headers: { 'Content-Type': 'application/json' },
+                headers: corsHeaders,
             });
         }
 
         return new Response(JSON.stringify({ message: 'Product data found', status: 200, data: product }), {
             status: 200,
-            headers: { 'Content-Type': 'application/json' },
+            headers: corsHeaders,
         });
     } catch (error) {
         console.log(error);
@@ -138,7 +137,7 @@ export const createProducts = async (req: Request, env:Record<string,string>): P
             return BadRequest('The quantity is required')
         }
 
-        const product = new ProductSchema(null, productName, quantity, category, true, new Date());
+        const product = new ProductSchema(1, productName, quantity, category, true, new Date());
         await createProduct(product, env);
     
         return InsertSuccess('Product')

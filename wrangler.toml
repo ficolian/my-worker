@@ -13,9 +13,8 @@ preview_id = "bbdcd21aee89499698ef06430b62c1ed"
 
 [vars]
 SECRET_KEY = "your-secret-key"
-
-[env.production]
-vars = { UPSTASH_REDIS_REST_URL = "https://thankful-mako-22301.upstash.io", UPSTASH_REDIS_TOKEN = "AVcdAAIjcDE2NGE4ODg1OGQ5MzI0NDg1YmQwYTU3OGRjNDZhOTVhMnAxMA"}
+UPSTASH_REDIS_REST_URL = "https://thankful-mako-22301.upstash.io"
+UPSTASH_REDIS_REST_TOKEN = "AVcdAAIjcDE2NGE4ODg1OGQ5MzI0NDg1YmQwYTU3OGRjNDZhOTVhMnAxMA"
 
 [build]
 command = "npm run build"

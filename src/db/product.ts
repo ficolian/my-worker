@@ -4,7 +4,7 @@ import { toJSON, fromJSON } from "../middlewares/jsonUtils";
 // Define the Product schema class
 export class ProductSchema {
     constructor(
-        public productId: number | null,
+        public productId: number,
         public productName: string,
         public quantity: number,
         public category: string | null = 'Electronics',
@@ -17,7 +17,7 @@ export class ProductSchema {
 
     static fromObject(obj: any): ProductSchema {
         return new ProductSchema(
-            obj.productId || null,
+            obj.productId,
             obj.productName,
             obj.quantity,
             obj.category || 'Electronics',
@@ -62,8 +62,8 @@ export const getProducts = async (env:Record<string,string>): Promise<ProductSch
         products.push((ProductSchema.fromObject(productData)));
       }
     }
-
-    return products; // Return the list of products
+    const sortedProducts = products.sort((a, b) => a.productId - a.productId);
+    return sortedProducts; // Return the list of products
 };
 
 export const createProduct = async (product: ProductSchema, env:Record<string,string>): Promise<void> => {

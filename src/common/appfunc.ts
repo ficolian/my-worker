@@ -1,9 +1,9 @@
 import * as AppConst from './appconst';
 export const corsHeaders = {
     "Access-Control-Allow-Origin": "*",  // Allows all origins, replace with specific origin if needed
-    "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",  // Allowed HTTP methods
+    "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS, PUT",  // Allowed HTTP methods
     "Access-Control-Allow-Headers": "Content-Type",  // Allowed headers
-    'Content-Type': "application/json",
+    "Content-Type": "application/json",
 };
 export function Success(message: string, data: any): Response {
     message = message;
@@ -32,7 +32,7 @@ export function Fail(message: string): Response {
 export function InsertSuccess(message: string): Response {
     message = `${message} successfully save`;
 
-    return new Response(JSON.stringify({ message: message, status: AppConst.HTTP_SUCCESS }), {
+    return new Response(JSON.stringify({ message: message, status: AppConst.REQUEST_SUCCESS }), {
         status: AppConst.HTTP_SUCCESS,
         headers: corsHeaders,
     });

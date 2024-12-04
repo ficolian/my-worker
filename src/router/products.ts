@@ -4,7 +4,8 @@ import { verifyToken } from '../middlewares/jwtUtils';
 const corsHeaders = {
   'Access-Control-Allow-Headers': '*', // What headers are allowed. * is wildcard. Instead of using '*', you can specify a list of specific headers that are allowed, such as: Access-Control-Allow-Headers: X-Requested-With, Content-Type, Accept, Authorization.
   'Access-Control-Allow-Methods': 'POST, OPTIONS, PUT, DELETE', // Allowed methods. Others could be GET, PUT, DELETE etc.
-  'Access-Control-Allow-Origin': '*', // This is URLs that are allowed to access the server. * is the wildcard character meaning any URL can.
+  'Access-Control-Allow-Origin': '*',
+  'Content-Type': "application/json"
 }
 
 export default async (request: Request, env:Record<string,string>): Promise<Response> => {
@@ -18,7 +19,7 @@ export default async (request: Request, env:Record<string,string>): Promise<Resp
 
     const tokenVerified = await verifyToken(request, env);
     if (!tokenVerified) {
-      return new Response('Unauthorized', { status: 401 });
+      return new Response('Unauthorized', { status: 403 });
     }
 
     if (url.pathname.match(/^\/products\/\d+$/) && request.method === 'GET') 

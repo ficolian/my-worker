@@ -60,13 +60,13 @@ export const register = async (request: Request, env:Record<string,string>): Pro
         const { email, password, username }: registerRequest = await request.json();
 
         if (!email || !password || !username) {
-            return Fail('Bad Request: Missing required fields');
+            return Fail('Missing required fields');
         }
 
         const existingUser = await getUserByEmail(email, env);
 
         if (existingUser) {
-            return Fail('Bad Request: User already exists');
+            return Fail('User already exists');
         }
 
         const salt = random();  // Ensure you have a proper implementation of 'random()'
@@ -96,7 +96,7 @@ export const logout = async (request: Request, env: Record<string,string>): Prom
         const { jwtToken }: { jwtToken: string } = await request.json();
 
         if (!jwtToken) {
-            return Fail('Bad Request: jwtToken is required');
+            return Fail('JwtToken is required');
         }
 
         await blacklistToken(jwtToken, env);

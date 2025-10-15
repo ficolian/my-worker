@@ -1,4 +1,3 @@
-import { entries } from 'lodash';
 import authentication from './router/authentication';
 import products from './router/products';
 

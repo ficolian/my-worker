@@ -42,6 +42,7 @@ export const getUserByEmail = async (email: string,  env:Record<string,string>):
     try {
         const redis = await createRedisClient(env);
         const keys = await redis.keys(`user:*`);
+        console.log('test',keys)
 
         for (const key of keys) {
             const userData  = await redis.get(key);

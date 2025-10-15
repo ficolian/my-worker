@@ -43,4 +43,4 @@ wrangler dev
 
 ### 5. Deploy the API
 
-wrangler publish
+wrangler deploy

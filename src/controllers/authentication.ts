@@ -1,5 +1,4 @@
-import express from 'express';
-import { getUserByEmail, createUser, getUserById, UserModel, updateUserById } from "../db/user";
+import { getUserByEmail, createUser, UserModel, updateUserById } from "../db/user";
 import { authentication, random } from "../helpers";
 import { generateToken, blacklistToken } from '../middlewares/jwtUtils';
 import { BadRequest, Fail, InsertSuccess, Success } from '../common/appfunc';
@@ -13,7 +12,6 @@ interface registerRequest {
 export const login = async (request: Request, env:Record<string,string>): Promise<Response> => {
     try {
         const { email, password }: { email: string, password: string } = await request.json();
-        console.log(email);
         if (!email || !password) {
             return BadRequest('Missing Parameter');
         }
@@ -53,7 +51,6 @@ export const login = async (request: Request, env:Record<string,string>): Promis
         return new Response('Internal Server Error', { status: 500 });
     }
 };
-
 
 export const register = async (request: Request, env:Record<string,string>): Promise<Response> => {
     try {

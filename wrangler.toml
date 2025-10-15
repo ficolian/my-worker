@@ -1,4 +1,4 @@
-name = "cloudflare-worker-typescript"
+name = "cloudflare-api-typescript"
 type = "webpack"
 account_id = '0d2c0a5b601d717f2f9cd2da4cdcc3a1'
 workers_dev = true
@@ -13,8 +13,8 @@ preview_id = "bbdcd21aee89499698ef06430b62c1ed"
 
 [vars]
 SECRET_KEY = "your-secret-key"
-UPSTASH_REDIS_REST_URL = "https://thankful-mako-22301.upstash.io"
-UPSTASH_REDIS_REST_TOKEN = "AVcdAAIjcDE2NGE4ODg1OGQ5MzI0NDg1YmQwYTU3OGRjNDZhOTVhMnAxMA"
+UPSTASH_REDIS_REST_URL = "https://infinite-gibbon-10444.upstash.io"
+UPSTASH_REDIS_REST_TOKEN = "ASjMAAIncDI4ZmI3ZGQyMGY0YjQ0YWIwOTY4YmMzOWRiZTc4MDYwYnAyMTA0NDQ"
 
 [build]
 command = "npm run build"

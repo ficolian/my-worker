@@ -3,11 +3,50 @@ import { corsHeaders, BadRequest, DeleteFail, InsertFail, InsertSuccess, Fail, D
 import { ProductSchema, deleteProductById, getProductById, getProducts, createProduct, paginateArray, updateProductById } from '../db/product';
 
 interface productRequest {
-    id: string | null;
+    productId: string | null;
     productName: string;
     quantity: number;
     category: string;
 }
+
+export const getAllProductsQuery = async (request: Request, env:Record<string,string>): Promise<Response> => {
+    try {
+        const products = await getProducts(env);
+        const total = products.length;
+
+        const url = new URL(request.url);
+        const page = url.searchParams.get('page');
+        const pageSize = url.searchParams.get('pageSize');
+
+        const pageValue = page ? Number(page) : 1;
+        const pageSizeValue = pageSize ? Number(pageSize) : 10;
+
+        if (total === 0) {
+            return new Response(
+                JSON.stringify({ message: 'Product data not found', status: 200 }),
+                { status: 200, headers: corsHeaders }
+            );
+        }
+
+        const paginatedData = paginateArray(products, pageValue, pageSizeValue);
+
+        return new Response(
+            JSON.stringify({
+                success: true,
+                message: 'Product data found',
+                status: 200,
+                total: total,
+                page: pageValue,
+                pageSize: pageSizeValue,
+                data: {rows : paginatedData},
+            }),
+            { status: 200, headers: corsHeaders }
+        );
+    } catch (error) {
+        console.log(error);
+        return fail('Internal Server Error')
+    }
+};
 
 export const getAllProducts = async (request: Request, env:Record<string,string>): Promise<Response> => {
     try {
@@ -32,6 +71,7 @@ export const getAllProducts = async (request: Request, env:Record<string,string>
 
         return new Response(
             JSON.stringify({
+                success: true,
                 message: 'Product data found',
                 status: 200,
                 total: total,
@@ -49,7 +89,7 @@ export const getAllProducts = async (request: Request, env:Record<string,string>
 
 export const deleteProduct = async (request: Request, env:Record<string,string>): Promise<Response> => {
     try {
-        const { id, productName, quantity, category }: productRequest = await request.json();
+        const { productId: id, productName, quantity, category }: productRequest = await request.json();
 
         if (!id){
             return Fail('id is required')
@@ -69,9 +109,9 @@ export const deleteProduct = async (request: Request, env:Record<string,string>)
 }
 export const updateProduct = async (req: Request, env:Record<string,string>): Promise<Response> => {
     try {        
-        const { id, productName, quantity, category }: productRequest = await req.json();
+        const { productId: productId, productName, quantity, category }: productRequest = await req.json();
 
-        if (!id) {
+        if (!productId) {
             return Fail('The id is required')
         }
 
@@ -79,7 +119,7 @@ export const updateProduct = async (req: Request, env:Record<string,string>): Pr
             return Fail('The productName is required')
         }
 
-        const product = await getProductById(id, env);
+        const product = await getProductById(productId, env);
 
         if (product == null) {
             return Notfound("Product")
@@ -92,7 +132,7 @@ export const updateProduct = async (req: Request, env:Record<string,string>): Pr
             modifiedAt: new Date()
         };
         
-        await updateProductById(id, updatedValues, env)
+        await updateProductById(productId, updatedValues, env)
             .then(() => {
                 console.log('Product updated successfully');
             })
@@ -116,9 +156,16 @@ export const getProductsById = async (request: Request, id: string, env:Record<s
             });
         }
 
-        return new Response(JSON.stringify({ message: 'Product data found', status: 200, data: product }), {
-            status: 200,
-            headers: corsHeaders,
+        return new Response(
+            JSON.stringify({ 
+                message: 'Product data found', 
+                status: 200, 
+                data: product,
+                success: true, 
+            }), 
+            {
+                status: 200,
+                headers: corsHeaders,
         });
     } catch (error) {
         console.log(error);
@@ -127,7 +174,7 @@ export const getProductsById = async (request: Request, id: string, env:Record<s
 };
 export const createProducts = async (req: Request, env:Record<string,string>): Promise<Response> => {
     try {
-        const {id, productName, quantity, category } : productRequest = await req.json();
+        const {productId: id, productName, quantity, category } : productRequest = await req.json();
         
         if (!productName) {
             return Fail('The productName is required')

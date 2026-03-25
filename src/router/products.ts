@@ -1,4 +1,4 @@
-import { getAllProducts, getProductsById, deleteProduct, updateProduct, createProducts } from '../controllers/product';
+import { getAllProducts, getProductsById, deleteProduct, updateProduct, createProducts, getAllProductsQuery } from '../controllers/product';
 import { verifyToken } from '../middlewares/jwtUtils';
 
 const corsHeaders = {
@@ -44,6 +44,10 @@ export default async (request: Request, env:Record<string,string>): Promise<Resp
       else {
         return new Response('Method Not Allowed', { status: 405 });
       }
+    }
+
+    else if (url.pathname == '/products/query') {
+      return await getAllProductsQuery(request, env);
     }
     
     else {

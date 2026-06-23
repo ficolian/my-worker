@@ -17,8 +17,8 @@ import { Redis } from '@upstash/redis/cloudflare';
 // }
 
 export async function createRedisClient(env: Record<string, string>): Promise<Redis> {
-  const redisUrl = "https://inspired-unicorn-83299.upstash.io";  // Access Redis URL from environment variables
-  const redisToken = 'gQAAAAAAAUVjAAIncDI1NzhhYWYyMDc0YjY0OGRlOGFjMGM4NmNjYjYzOWQ5YXAyODMyOTk';  // Access Redis token from environment variables
+  const redisUrl = "https://picked-halibut-133575.upstash.io";  // Access Redis URL from environment variables
+  const redisToken = 'gQAAAAAAAgnHAAIgcDE4MzRjMmNjOTA4ZmQ0MjExYmJhZGU2ZjY3MGMzYjI1Ng';  // Access Redis token from environment variables
   return new Redis({
     url: redisUrl,
     token: redisToken,
